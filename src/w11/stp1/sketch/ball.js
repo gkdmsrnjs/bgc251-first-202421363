@@ -9,6 +9,38 @@ class Ball {
     this.r = r;
   }
 
+  collide(other, restitution = 0.7) {
+    const dx = other.x - this.x;
+    const dy = other.y - this.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    let minDist = this.r + other.r;
+    if (dist <= minDist) {
+      let overlap = 0.5 * (minDist - dist);
+      let nx = dx / dist;
+      let ny = dy / dist;
+
+      this.x -= overlap * nx;
+      this.y -= overlap * ny;
+      other.x += overlap * nx;
+      other.y += overlap * ny;
+
+      let dvx = other.vx - this.vx;
+      let dvy = other.vy - this.vy;
+      let vn = dvx * nx + dvy * ny;
+
+      if (vn <= 0) {
+        const impulse = (-(1 + restitution) * vn) / 2;
+        const ix = impulse * nx;
+        const iy = impulse * ny;
+
+        this.vx -= ix;
+        this.vy -= iy;
+        other.vx += ix;
+        other.vy += iy;
+      }
+    }
+  }
+
   applyGravity(ax, ay) {
     this.ax += ax;
     this.ay += ay;
